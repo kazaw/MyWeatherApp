@@ -1,4 +1,4 @@
-package com.kacper.myweatherapp
+package com.kacper.myweatherapp.API
 
 class OpenWeatherMapAPI {
     fun getWeatherGPSDataLink(lat: Double, lon: Double): String? {
