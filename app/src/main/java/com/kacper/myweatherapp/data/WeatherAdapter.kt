@@ -2,6 +2,11 @@ package com.kacper.myweatherapp.data
 
 import org.json.JSONException
 import org.json.JSONObject
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.*
 
 class WeatherAdapter {
@@ -11,6 +16,28 @@ class WeatherAdapter {
         cityList.add(City("Cracow", 50.06, 19.56))
         return cityList
     }
+
+    fun getWeatherData(urlString: String?): String? {
+        var data: String? = null
+        try {
+            val url = URL(urlString)
+            val httpURLConnection = url.openConnection() as HttpURLConnection
+            if (httpURLConnection.responseCode == 200) {
+                val buff = BufferedReader(InputStreamReader(httpURLConnection.inputStream))
+                val stringBuilder = StringBuilder()
+                var line: String?
+                while (buff.readLine().also { line = it } != null) stringBuilder.append(line)
+                data = stringBuilder.toString()
+                httpURLConnection.disconnect()
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+        }
+        return data
+    }
+
     fun setCityFromJsonString(data: String?, citySource: City): City? {
         try {
             val jsonObject = JSONObject(data)
