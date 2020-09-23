@@ -2,4 +2,9 @@
     <string name="app_name">MyWeatherApp</string>
     <string name="text_setting">Settings</string>
     <string name="text_location">Location</string>
+    <string name="text_temperature">Temperature: </string>
+    <string name="text_wind_speed">Wind Speed: </string>
+    <string name="text_pressure">Pressure: </string>
+    <string name="text_ok">OK</string>
+    <string name="text_weather_icon">Weather Icon</string>
 </resources>

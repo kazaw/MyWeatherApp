@@ -2,19 +2,29 @@ package com.kacper.myweatherapp
 
 import android.Manifest
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.Window
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.android.volley.Request
+import com.android.volley.RequestQueue
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import com.kacper.myweatherapp.api.OpenWeatherMapAPI
+import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.data.WeatherAdapter
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.fragment_weather.*
 
 class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
 
     private val PERMISSIONS_REQUEST_LOCATION = 99
+    private lateinit var requestQueue: RequestQueue
+    private lateinit var cityList: MutableList<City>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,17 +40,47 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         toolbar_main.setOnMenuItemClickListener(this)
 
         setupPermissions()
-        try {
+        requestQueue = Volley.newRequestQueue(this)
 
-        }catch (e : Exception){
+        try {
+            cityList = WeatherAdapter.getCityList() as MutableList<City>
+            getWeatherData(10.0, 10.0)
+        }catch (e: Exception){
             e.printStackTrace()
         }
 
     }
 
+    private fun getWeatherData(lat: Double, lon: Double){
+        val url = OpenWeatherMapAPI.getWeatherGPSDataLink(lat, lon)
+        val stringRequest = StringRequest(
+            Request.Method.GET, url,
+            { response ->
+                var city = cityList[1]
+                city = WeatherAdapter.setCityFromJsonString(response, city)
+                setUI(city)
+            },
+            { Toast.makeText(this, "Network didnt work", Toast.LENGTH_SHORT).show() })
+        requestQueue.add(stringRequest)
+    }
+
+    private fun setUI(city: City){
+        textView_location.text = city.name
+        textView_temperature_data.text = city.temperature.toString()
+        textView_wind_data.text = city.windSpeed.toString()
+        textView_pressure_data.text = city.pressure.toString()
+        val imageResourceId = resources.getIdentifier(
+            city.iconName, "drawable",
+            packageName
+        )
+        imageView_weather_icon.setImageResource(imageResourceId)
+    }
+
     private fun setupPermissions() {
-        val permission = ContextCompat.checkSelfPermission(this,
-            Manifest.permission.ACCESS_FINE_LOCATION)
+        val permission = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        )
 
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makePermissionsRequest()
@@ -48,8 +88,10 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun makePermissionsRequest() {
-        ActivityCompat.requestPermissions(this,
-            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), PERMISSIONS_REQUEST_LOCATION
+        )
     }
 
     private fun startSettingsActivity(){
