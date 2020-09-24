@@ -43,7 +43,7 @@
 
         <fragment
             android:id="@+id/fragment"
-            android:name="com.kacper.myweatherapp.WeatherFragment"
+            android:name="com.kacper.myweatherapp.ui.WeatherFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
