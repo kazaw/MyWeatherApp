@@ -17,6 +17,7 @@ import com.android.volley.toolbox.Volley
 import com.kacper.myweatherapp.api.OpenWeatherMapAPI
 import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.data.WeatherAdapter
+import com.kacper.myweatherapp.ui.CityFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_weather.*
 
@@ -99,7 +100,10 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun navigationClick(){//TODO: Change name
-        Toast.makeText(this, "TODO: Navigation Click", Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "TODO: Navigation Click", Toast.LENGTH_SHORT).show()
+        val cityFragment = CityFragment.newInstance(1, cityList as ArrayList<City>)
+        supportFragmentManager.let { cityFragment.show(it, "CityFragment") }
+
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
