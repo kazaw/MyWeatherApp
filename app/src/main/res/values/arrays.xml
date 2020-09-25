@@ -1,0 +1,14 @@
+<resources>
+    <!-- Reply Preference -->
+    <string-array name="temperature_unit_entries">
+        <item>Celsius</item>
+        <item>Kelvin</item>
+        <item>Fahrenheit</item>
+    </string-array>
+
+    <string-array name="temperature_unit_values">
+        <item>C</item>
+        <item>K</item>
+        <item>F</item>
+    </string-array>
+</resources>

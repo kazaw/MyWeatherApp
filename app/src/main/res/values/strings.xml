@@ -7,4 +7,17 @@
     <string name="text_pressure">Pressure: </string>
     <string name="text_ok">OK</string>
     <string name="text_weather_icon">Weather Icon</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="header_units">Units</string>
+    <string name="header_todo">TODO</string>
+
+    <!-- Messages Preferences -->
+    <string name="title_temperature">Temperature</string>
+    <string name="title_todo">TODO</string>
+
+    <!-- Sync Preferences -->
+
+
 </resources>

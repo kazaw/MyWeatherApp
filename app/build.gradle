@@ -27,6 +27,7 @@ android {
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation 'androidx.preference:preference:1.1.0'
     def activity_version = "1.1.0"
     def volley_version = "1.1.1"
     implementation fileTree(dir: "libs", include: ["*.jar"])
