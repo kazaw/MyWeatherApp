@@ -1,6 +1,8 @@
 package com.kacper.myweatherapp
 
 import android.Manifest
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.MenuItem
@@ -10,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.preference.PreferenceManager
 import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
@@ -18,14 +21,19 @@ import com.kacper.myweatherapp.api.OpenWeatherMapAPI
 import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.data.WeatherAdapter
 import com.kacper.myweatherapp.ui.CityFragment
+import com.kacper.myweatherapp.utilities.convertKelvinToCelsius
+import com.kacper.myweatherapp.utilities.convertKelvinToFahrenheit
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_weather.*
+import java.text.DecimalFormat
 
-class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
+class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val PERMISSIONS_REQUEST_LOCATION = 99
     private lateinit var requestQueue: RequestQueue
     private lateinit var cityList: MutableList<City>
+    private lateinit var activeCity: City
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +48,8 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         toolbar_main.inflateMenu(R.menu.menu_main)
         toolbar_main.setOnMenuItemClickListener(this)
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this)
         setupPermissions()
         requestQueue = Volley.newRequestQueue(this)
 
@@ -57,17 +67,26 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
-                var city = cityList[1]
-                city = WeatherAdapter.setCityFromJsonString(response, city)
-                setUI(city)
+                activeCity = cityList[1]//TODO: Selected from recycler view
+                activeCity = WeatherAdapter.setCityFromJsonString(response, activeCity)
+                setUI(activeCity)
             },
             { Toast.makeText(this, "Network didnt work", Toast.LENGTH_SHORT).show() })
         requestQueue.add(stringRequest)
     }
 
     private fun setUI(city: City){
+
+        var temperature = city.temperature
+        val decimalFormat = DecimalFormat("#.##")
+        var temperatureString = ""
+        when(sharedPreferences.getString("key_preference_temperature", "")){
+            "C" -> temperatureString = decimalFormat.format(convertKelvinToCelsius(temperature)).toString() + "\u2103"
+            "K" -> temperatureString = "$temperature K"
+            "F" -> temperatureString = decimalFormat.format(convertKelvinToFahrenheit(temperature)).toString() + "\u2109"
+        }
         textView_location.text = city.name
-        textView_temperature_data.text = city.temperature.toString()
+        textView_temperature_data.text =  temperatureString
         textView_wind_data.text = city.windSpeed.toString()
         textView_pressure_data.text = city.pressure.toString()
         val imageResourceId = resources.getIdentifier(
@@ -96,7 +115,8 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
     }
 
     private fun startSettingsActivity(){
-        Toast.makeText(this, "TODO: Start Setting", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, SettingsActivity::class.java)
+        startActivity(intent)
     }
 
     private fun navigationClick(){//TODO: Change name
@@ -115,4 +135,12 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener {
             else -> false
         }
     }
+
+    override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
+        Toast.makeText(this, "Shared pre", Toast.LENGTH_SHORT).show()
+        if (p1 == "key_preference_temperature") {
+            setUI(activeCity)//TODO: Change it because is ugly
+        }
+    }
+
 }
