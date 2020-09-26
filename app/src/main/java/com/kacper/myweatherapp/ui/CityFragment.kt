@@ -51,7 +51,7 @@ class CityFragment : DialogFragment() {
         return view
     }
 
-    fun itemClick(){
+    private fun itemClick(){
         Toast.makeText(context, "Item clicked", Toast.LENGTH_SHORT).show()
     }
 
