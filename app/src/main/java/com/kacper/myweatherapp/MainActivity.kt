@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.view.Window
 import android.widget.Toast
@@ -17,10 +18,14 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.kacper.myweatherapp.api.OpenWeatherMapAPI
 import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.data.WeatherAdapter
 import com.kacper.myweatherapp.ui.CityFragment
+import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_CITY_LIST
+import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_TEMPERATURE
 import com.kacper.myweatherapp.utilities.convertKelvinToCelsius
 import com.kacper.myweatherapp.utilities.convertKelvinToFahrenheit
 import kotlinx.android.synthetic.main.activity_main.*
@@ -34,6 +39,8 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     private lateinit var cityList: MutableList<City>
     private lateinit var activeCity: City
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var gson: Gson
+    private lateinit var sharedPreferencesEditor : SharedPreferences.Editor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,18 +55,28 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
         toolbar_main.inflateMenu(R.menu.menu_main)
         toolbar_main.setOnMenuItemClickListener(this)
 
+        gson = Gson()
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         sharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        sharedPreferencesEditor = sharedPreferences.edit()
         setupPermissions()
         requestQueue = Volley.newRequestQueue(this)
 
+        if (sharedPreferences.getString(KEY_PREFERENCE_CITY_LIST, null) != null){
+            getCityList()
+        } else {
+            cityList = ArrayList()
+            activeCity = City("My location", 99.0, 99.0)
+            cityList.add(activeCity)
+            val jsonString = gson.toJson(cityList)
+            sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
+        }
         try {
-            cityList = WeatherAdapter.getCityList() as MutableList<City>
+            //cityList = WeatherAdapter.getCityList() as MutableList<City>
             getWeatherData(10.0, 10.0)
         }catch (e: Exception){
             e.printStackTrace()
         }
-
     }
 
     private fun getWeatherData(lat: Double, lon: Double){
@@ -67,7 +84,7 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
-                activeCity = cityList[1]//TODO: Selected from recycler view
+                activeCity = cityList[0]//TODO: Selected from recycler view
                 activeCity = WeatherAdapter.setCityFromJsonString(response, activeCity)
                 setUI(activeCity)
             },
@@ -76,16 +93,19 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     }
 
     private fun setUI(city: City){
-
-        var temperature = city.temperature
         val decimalFormat = DecimalFormat("#.##")
+        var temperature = city.temperature
         var temperatureString = ""
-        when(sharedPreferences.getString("key_preference_temperature", "")){
-            "C" -> temperatureString = decimalFormat.format(convertKelvinToCelsius(temperature)).toString() + "\u2103"
+        when(sharedPreferences.getString(KEY_PREFERENCE_TEMPERATURE, "")){
+            "C" -> temperatureString =
+                decimalFormat.format(convertKelvinToCelsius(temperature)).toString() + "\u2103"
             "K" -> temperatureString = "$temperature K"
-            "F" -> temperatureString = decimalFormat.format(convertKelvinToFahrenheit(temperature)).toString() + "\u2109"
+            "F" -> temperatureString =
+                decimalFormat.format(convertKelvinToFahrenheit(temperature)).toString() + "\u2109"
         }
         textView_location.text = city.name
+        textView_longitude_data.text = decimalFormat.format(city.lon)
+        textView_latitude_data.text = decimalFormat.format(city.lat)
         textView_temperature_data.text =  temperatureString
         textView_wind_data.text = city.windSpeed.toString()
         textView_pressure_data.text = city.pressure.toString()
@@ -123,7 +143,14 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
         //Toast.makeText(this, "TODO: Navigation Click", Toast.LENGTH_SHORT).show()
         val cityFragment = CityFragment.newInstance(1, cityList as ArrayList<City>)
         supportFragmentManager.let { cityFragment.show(it, "CityFragment") }
+    }
 
+    inline fun <reified T> genericType() = object: TypeToken<T>() {}.type
+    private fun getCityList(){
+        Log.d("MainActivityDEBUG", "getCityList")
+        val jsonString: String? = sharedPreferences.getString(KEY_PREFERENCE_CITY_LIST, "")
+        val type = genericType<List<City>>()
+        cityList = gson.fromJson(jsonString, type)
     }
 
     override fun onMenuItemClick(item: MenuItem?): Boolean {
@@ -137,9 +164,12 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     }
 
     override fun onSharedPreferenceChanged(p0: SharedPreferences?, p1: String?) {
-        Toast.makeText(this, "Shared pre", Toast.LENGTH_SHORT).show()
-        if (p1 == "key_preference_temperature") {
+        //Toast.makeText(this, "Shared pre", Toast.LENGTH_SHORT).show()
+        if (p1 == KEY_PREFERENCE_TEMPERATURE) {
             setUI(activeCity)//TODO: Change it because is ugly
+        } else if (p1 == KEY_PREFERENCE_CITY_LIST) {
+            Toast.makeText(this, "changed list", Toast.LENGTH_SHORT).show()
+            getCityList()
         }
     }
 
