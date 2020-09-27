@@ -1,5 +1,7 @@
 package com.kacper.myweatherapp.ui
 
+import android.app.Activity
+import android.content.Context
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -8,11 +10,12 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
+import androidx.fragment.app.FragmentActivity
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
 
 class MyCityRecyclerViewAdapter(
+    private val activity: FragmentActivity?,
     private val values: List<City>,
     private var listener:  (City) -> Unit
 ) : RecyclerView.Adapter<MyCityRecyclerViewAdapter.ViewHolder>() {
@@ -79,6 +82,6 @@ class MyCityRecyclerViewAdapter(
 
     private fun onAddCityButtonClick(){
         val addCityFragment = NewCityFragment.newInstance("TODO","TODO")
-        //supportFragmentManager.let { addCityFragment.show(context, "AddCityFragment") }
+        activity?.supportFragmentManager?.let { addCityFragment.show(it, "AddCityFragment") }
     }
 }

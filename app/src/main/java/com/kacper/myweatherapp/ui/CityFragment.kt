@@ -43,7 +43,7 @@ class CityFragment : DialogFragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MyCityRecyclerViewAdapter(cityList) {
+                adapter = MyCityRecyclerViewAdapter(activity, cityList) {
                     itemClick()
                 }
             }
