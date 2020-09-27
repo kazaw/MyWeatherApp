@@ -73,7 +73,7 @@ class MyCityRecyclerViewAdapter(
         val imageView : ImageView? = view.findViewById(R.id.imageView_weather_list)
         val nameView: TextView? = view.findViewById(R.id.textView_list_name)
         val temperatureView: TextView? = view.findViewById(R.id.textView_list_temperature)
-        val buttonView : Button? = view.findViewById(R.id.button_add_city)
+        val buttonView : Button? = view.findViewById(R.id.button_add_city_row)
 
         override fun toString(): String {
             return super.toString() + " '" + temperatureView?.text + "'"
