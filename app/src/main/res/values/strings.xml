@@ -21,6 +21,7 @@
     <string name="text_latitude">Latitude</string>
     <string name="text_longitude">Longitude</string>
     <string name="text_add_city">Add City</string>
+    <string name="text_city_name">City name</string>
 
     <!-- Sync Preferences -->
 
