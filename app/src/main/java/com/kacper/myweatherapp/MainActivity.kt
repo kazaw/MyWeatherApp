@@ -24,10 +24,7 @@ import com.kacper.myweatherapp.api.OpenWeatherMapAPI
 import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.data.WeatherAdapter
 import com.kacper.myweatherapp.ui.CityFragment
-import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_CITY_LIST
-import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_TEMPERATURE
-import com.kacper.myweatherapp.utilities.convertKelvinToCelsius
-import com.kacper.myweatherapp.utilities.convertKelvinToFahrenheit
+import com.kacper.myweatherapp.utilities.*
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_weather.*
 import java.text.DecimalFormat
@@ -66,43 +63,67 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
             getCityList()
         } else {
             cityList = ArrayList()
-            activeCity = City("My location", 99.0, 99.0)
+            activeCity = City("My location", 15.3, 15.3)//TODO: get device location
             cityList.add(activeCity)
             val jsonString = gson.toJson(cityList)
             sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
+            sharedPreferencesEditor.apply()
         }
         try {
             //cityList = WeatherAdapter.getCityList() as MutableList<City>
-            getWeatherData(10.0, 10.0)
+            getWeatherData()
+            activeCity = cityList[0]//TODO: Selected from recycler view
+            setUI(activeCity)
         }catch (e: Exception){
             e.printStackTrace()
         }
     }
 
-    private fun getWeatherData(lat: Double, lon: Double){
+/*    private fun getWeatherData(lat: Double, lon: Double){
         val url = OpenWeatherMapAPI.getWeatherGPSDataLink(lat, lon)
         val stringRequest = StringRequest(
             Request.Method.GET, url,
             { response ->
-                activeCity = cityList[0]//TODO: Selected from recycler view
+                activeCity = cityList[1]//TODO: Selected from recycler view
                 activeCity = WeatherAdapter.setCityFromJsonString(response, activeCity)
                 setUI(activeCity)
             },
             { Toast.makeText(this, "Network didnt work", Toast.LENGTH_SHORT).show() })
         requestQueue.add(stringRequest)
+    }*/
+
+    private fun getWeatherData(){
+        for (i in 0 until cityList.size) {
+            var item = cityList[i]
+            val url = OpenWeatherMapAPI.getWeatherGPSDataLink(item.lat, item.lon)
+            val stringRequest = StringRequest(
+                Request.Method.GET, url,
+                { response ->
+                    item = WeatherAdapter.setCityFromJsonString(response, item)
+                    cityList[i] = item
+                },
+                {
+                    Toast.makeText(this, "Network didnt work $i", Toast.LENGTH_SHORT).show()
+                    Log.d("MainActivityDEBUG", "volley $i $item")})
+            requestQueue.add(stringRequest)
+        }
     }
+
 
     private fun setUI(city: City){
         val decimalFormat = DecimalFormat("#.##")
         var temperature = city.temperature
-        var temperatureString = ""
-        when(sharedPreferences.getString(KEY_PREFERENCE_TEMPERATURE, "")){
+        var temperatureString = sharedPreferences.getString(KEY_PREFERENCE_TEMPERATURE, "")?.let {
+            getTemperatureString(
+                it, temperature)
+        }
+/*        when(sharedPreferences.getString(KEY_PREFERENCE_TEMPERATURE, "")){
             "C" -> temperatureString =
                 decimalFormat.format(convertKelvinToCelsius(temperature)).toString() + "\u2103"
             "K" -> temperatureString = "$temperature K"
             "F" -> temperatureString =
                 decimalFormat.format(convertKelvinToFahrenheit(temperature)).toString() + "\u2109"
-        }
+        }*/
         textView_location.text = city.name
         textView_longitude_data.text = decimalFormat.format(city.lon)
         textView_latitude_data.text = decimalFormat.format(city.lat)
@@ -170,6 +191,7 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
         } else if (p1 == KEY_PREFERENCE_CITY_LIST) {
             Toast.makeText(this, "changed list", Toast.LENGTH_SHORT).show()
             getCityList()
+            getWeatherData()
         }
     }
 

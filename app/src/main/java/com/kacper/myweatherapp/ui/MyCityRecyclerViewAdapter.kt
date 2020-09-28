@@ -2,6 +2,7 @@ package com.kacper.myweatherapp.ui
 
 import android.app.Activity
 import android.content.Context
+import android.content.SharedPreferences
 import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
@@ -11,8 +12,11 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.FragmentActivity
+import androidx.preference.PreferenceManager
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_TEMPERATURE
+import com.kacper.myweatherapp.utilities.getTemperatureString
 
 class MyCityRecyclerViewAdapter(
     private val activity: FragmentActivity?,
@@ -23,6 +27,7 @@ class MyCityRecyclerViewAdapter(
     private val ITEM_VIEW = 0
     private val BUTTON_VIEW = 1
     private val log_tag = "RECYCLER VIEW"
+    private lateinit var sharedPreferences: SharedPreferences
 
     override fun getItemViewType(position: Int): Int {
         return if (position < values.size) {
@@ -60,9 +65,11 @@ class MyCityRecyclerViewAdapter(
                 item.iconName, "drawable",
                 holder.itemView.context.packageName
             )
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(activity)
             holder.imageView?.setImageResource(imageResourceId)
             holder.nameView?.text = item.name
-            holder.temperatureView?.text = item.temperature.toString()
+            holder.temperatureView?.text = sharedPreferences.getString(
+                KEY_PREFERENCE_TEMPERATURE, "")?.let { getTemperatureString(it,item.temperature) }
             holder.itemView.setOnClickListener { listener(item) }
         }
     }
