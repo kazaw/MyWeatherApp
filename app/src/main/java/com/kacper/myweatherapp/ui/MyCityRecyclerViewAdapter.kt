@@ -81,7 +81,7 @@ class MyCityRecyclerViewAdapter(
     }
 
     private fun onAddCityButtonClick(){
-        val addCityFragment = NewCityFragment.newInstance("TODO","TODO")
+        val addCityFragment = NewCityFragment.newInstance(values as ArrayList<City>)
         activity?.supportFragmentManager?.let { addCityFragment.show(it, "AddCityFragment") }
     }
 }
