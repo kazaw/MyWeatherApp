@@ -55,10 +55,25 @@ class NewCityFragment : DialogFragment() {
                 val name : String = editText1.text.toString()
                 val lat : Double = editText2.text.toString().toDouble()
                 val lon : Double = editText3.text.toString().toDouble()
-                onButtonClick(City(name, lat, lon))
+                if (checkLatitude(lat) && checkLongitude(lon)){
+                    onButtonClick(City(name, lat, lon))
+                }
             }
         }
         return v
+    }
+    private fun checkLatitude(lat : Double) : Boolean {
+        return if(lat < -90 || lat > 90) {
+            Toast.makeText(context, "Latitude must be in range <-90;90>", Toast.LENGTH_SHORT).show()
+            false
+        }else true
+    }
+
+    private fun checkLongitude(lon : Double) : Boolean {
+        return if(lon < -180 || lon > 180) {
+            Toast.makeText(context, "Longitude must be in range <-180;180>", Toast.LENGTH_SHORT).show()
+            false
+        }else true
     }
 
     private fun onButtonClick(city: City) {
