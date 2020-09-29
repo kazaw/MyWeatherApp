@@ -10,20 +10,33 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        app:srcCompat="@drawable/ic_launcher_background"
-        android:contentDescription="@string/text_weather_icon" />
+        android:background="#ff8000"
+        android:contentDescription="@string/text_weather_icon"
+        app:srcCompat="@drawable/ic_launcher_background" />
 
     <TextView
         android:id="@+id/textView_list_name"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="@dimen/text_margin"
+        android:background="#ffff00"
         android:textAppearance="?attr/textAppearanceListItem" />
 
     <TextView
         android:id="@+id/textView_list_temperature"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_margin="@dimen/text_margin"
+        android:ems="4"
+        android:background="#ff8000"
         android:textAppearance="?attr/textAppearanceListItem" />
+
+    <ImageButton
+        android:id="@+id/imageButton_delete"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="#ffff00"
+        app:srcCompat="@drawable/ic_baseline_delete_24" />
+
 </LinearLayout>
