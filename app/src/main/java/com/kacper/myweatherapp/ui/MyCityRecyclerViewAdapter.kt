@@ -8,9 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.kacper.myweatherapp.R
@@ -71,6 +69,11 @@ class MyCityRecyclerViewAdapter(
             holder.temperatureView?.text = sharedPreferences.getString(
                 KEY_PREFERENCE_TEMPERATURE, "")?.let { getTemperatureString(it,item.temperature) }
             holder.itemView.setOnClickListener { listener(item) }
+            holder.imageButtonView?.setOnClickListener {
+                Toast.makeText(activity, "delete button", Toast.LENGTH_SHORT).show()
+                //TODO: use if possible event bus to delete item and refresh recyclerview
+                //TODO: Why i am not using live data?
+            }
         }
     }
 
@@ -80,6 +83,7 @@ class MyCityRecyclerViewAdapter(
         val imageView : ImageView? = view.findViewById(R.id.imageView_weather_list)
         val nameView: TextView? = view.findViewById(R.id.textView_list_name)
         val temperatureView: TextView? = view.findViewById(R.id.textView_list_temperature)
+        val imageButtonView : ImageButton? = view.findViewById(R.id.imageButton_delete)
         val buttonView : Button? = view.findViewById(R.id.button_add_city_row)
 
         override fun toString(): String {

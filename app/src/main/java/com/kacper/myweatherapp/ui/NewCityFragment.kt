@@ -81,7 +81,7 @@ class NewCityFragment : DialogFragment() {
         val jsonString = gson.toJson(cityList)
         sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
         sharedPreferencesEditor.apply()
-        dismiss()
+        dismiss()// TODO: USE Event to bus to notify recyclerview to reload
     }
 
     companion object {
