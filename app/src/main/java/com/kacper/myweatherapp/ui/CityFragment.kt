@@ -20,14 +20,15 @@ import com.kacper.myweatherapp.data.City
 class CityFragment : DialogFragment() {
 
     private var columnCount = 1
-    private lateinit var cityList: List<City>
+    private lateinit var cityList: MutableList<City>//TODO: Delete this and use shared prefences
+    //TODO: private lateinit var recyclerViewAdapter : MyCityRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            cityList = it.getSerializable(ARG_CITY_LIST) as List<City>
+            cityList = it.getSerializable(ARG_CITY_LIST) as MutableList<City> //TODO: Delete this and use shared prefences
         }
     }
 
@@ -73,7 +74,7 @@ class CityFragment : DialogFragment() {
             CityFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_COLUMN_COUNT, columnCount)
-                    putSerializable(ARG_CITY_LIST, cityList)
+                    putSerializable(ARG_CITY_LIST, cityList) //TODO: Delete this and use shared prefences
                 }
             }
     }

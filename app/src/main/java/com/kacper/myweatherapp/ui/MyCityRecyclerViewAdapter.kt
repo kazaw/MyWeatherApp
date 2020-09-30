@@ -18,7 +18,7 @@ import com.kacper.myweatherapp.utilities.getTemperatureString
 
 class MyCityRecyclerViewAdapter(
     private val activity: FragmentActivity?,
-    private val values: List<City>,
+    private var values: MutableList<City>,
     private var listener:  (City) -> Unit
 ) : RecyclerView.Adapter<MyCityRecyclerViewAdapter.ViewHolder>() {
 
@@ -26,6 +26,12 @@ class MyCityRecyclerViewAdapter(
     private val BUTTON_VIEW = 1
     private val log_tag = "RECYCLER VIEW"
     private lateinit var sharedPreferences: SharedPreferences
+
+    fun swapData(values: List<City>) {
+        this.values.clear()
+        this.values.addAll(values)
+        notifyDataSetChanged()
+    }
 
     override fun getItemViewType(position: Int): Int {
         return if (position < values.size) {
