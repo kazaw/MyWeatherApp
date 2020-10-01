@@ -10,11 +10,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_CITY_LIST
+import com.kacper.myweatherapp.viewmodel.CityViewModel
+import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
 import java.text.DecimalFormat
 
 // TODO: Rename parameter arguments, choose names that match
@@ -27,12 +30,18 @@ class NewCityFragment : DialogFragment() {
     private lateinit var gson: Gson
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var sharedPreferencesEditor : SharedPreferences.Editor
+    private lateinit var cityViewModel: CityViewModel
+    private lateinit var cityViewModelFactory: CityViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         sharedPreferencesEditor = sharedPreferences.edit()
         gson = Gson()
+        cityViewModelFactory = CityViewModelFactory(requireActivity().application)
+        cityViewModel = ViewModelProvider(requireActivity(), cityViewModelFactory).get(
+            CityViewModel::class.java
+        )
         arguments?.let {
             cityList = it.getSerializable(CityFragment.ARG_CITY_LIST) as MutableList<City>
         }
@@ -77,10 +86,11 @@ class NewCityFragment : DialogFragment() {
     }
 
     private fun onButtonClick(city: City) {
-        cityList.add(city)
+/*        cityList.add(city)
         val jsonString = gson.toJson(cityList)
         sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
-        sharedPreferencesEditor.apply()
+        sharedPreferencesEditor.apply()*/
+        cityViewModel.insert(city)
         dismiss()// TODO: USE Event to bus to notify recyclerview to reload
     }
 

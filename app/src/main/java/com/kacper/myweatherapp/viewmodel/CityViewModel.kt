@@ -44,4 +44,12 @@ class CityViewModel(application: Application) : AndroidViewModel(application) {
         sharedPreferencesEditor.apply()
     }
 
+    fun delete(city: City) = viewModelScope.launch {
+        val cityList = getCityList()
+        cityList.remove(city)
+        val jsonString = gson.toJson(cityList)
+        sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
+        sharedPreferencesEditor.apply()
+    }
+
 }

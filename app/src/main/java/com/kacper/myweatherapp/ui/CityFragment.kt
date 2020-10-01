@@ -11,8 +11,11 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.viewmodel.CityViewModel
+import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
 
 /**
  * A fragment representing a list of Items.
@@ -21,10 +24,17 @@ class CityFragment : DialogFragment() {
 
     private var columnCount = 1
     private lateinit var cityList: MutableList<City>//TODO: Delete this and use shared prefences
-    //TODO: private lateinit var recyclerViewAdapter : MyCityRecyclerViewAdapter
+    private lateinit var cityViewModel: CityViewModel
+    private lateinit var cityViewModelFactory: CityViewModelFactory
+    private lateinit var recyclerViewAdapter : MyCityRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        cityViewModelFactory = CityViewModelFactory(activity!!.application)
+        cityViewModel = ViewModelProvider(this, cityViewModelFactory).get(
+            CityViewModel::class.java
+        )
 
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
@@ -45,9 +55,13 @@ class CityFragment : DialogFragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MyCityRecyclerViewAdapter(activity, cityList) {
+                recyclerViewAdapter = MyCityRecyclerViewAdapter(activity, mutableListOf()) {
                     itemClick()
                 }
+                adapter = recyclerViewAdapter
+                cityViewModel.getAll().observe(this@CityFragment, {data ->
+                    recyclerViewAdapter.swapData(data)
+                })
             }
         }
         return view
