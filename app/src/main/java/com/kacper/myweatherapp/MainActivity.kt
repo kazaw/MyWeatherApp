@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     }
 
 
-    private fun setUI(city: City){
+    private fun setUI(city: City){// TODO: USE Event bus to change this onclick
         val decimalFormat = DecimalFormat("#.##")
         var temperature = city.temperature
         var temperatureString = sharedPreferences.getString(KEY_PREFERENCE_TEMPERATURE, "")?.let {
