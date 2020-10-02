@@ -10,7 +10,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
+import androidx.appcompat.widget.ActivityChooserView
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
@@ -30,15 +33,14 @@ class CityFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        cityViewModelFactory = CityViewModelFactory(activity!!.application)
-        cityViewModel = ViewModelProvider(this, cityViewModelFactory).get(
+        cityViewModelFactory = CityViewModelFactory(requireActivity().application)
+        cityViewModel = ViewModelProvider(requireActivity(), cityViewModelFactory).get(
             CityViewModel::class.java
         )
 
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            cityList = it.getSerializable(ARG_CITY_LIST) as MutableList<City> //TODO: Delete this and use shared prefences
+            cityList = it.getSerializable(ARG_CITY_LIST) as MutableList<City> //TODO: Delete this
         }
     }
 
@@ -59,12 +61,16 @@ class CityFragment : DialogFragment() {
                     itemClick()
                 }
                 adapter = recyclerViewAdapter
-                cityViewModel.getAll().observe(this@CityFragment, {data ->
+                cityViewModel.getAll().observe(viewLifecycleOwner, {data ->
                     recyclerViewAdapter.swapData(data)
                 })
             }
         }
         return view
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
     }
 
     override fun onStart() {

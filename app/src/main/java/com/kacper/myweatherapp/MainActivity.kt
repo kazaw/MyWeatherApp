@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.android.volley.Request
 import com.android.volley.RequestQueue
@@ -25,6 +26,8 @@ import com.kacper.myweatherapp.data.City
 import com.kacper.myweatherapp.data.WeatherAdapter
 import com.kacper.myweatherapp.ui.CityFragment
 import com.kacper.myweatherapp.utilities.*
+import com.kacper.myweatherapp.viewmodel.CityViewModel
+import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_weather.*
 import java.text.DecimalFormat
@@ -38,6 +41,8 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var gson: Gson
     private lateinit var sharedPreferencesEditor : SharedPreferences.Editor
+    private lateinit var cityViewModel: CityViewModel
+    private lateinit var cityViewModelFactory: CityViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +63,11 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
         sharedPreferencesEditor = sharedPreferences.edit()
         setupPermissions()
         requestQueue = Volley.newRequestQueue(this)
+
+        cityViewModelFactory = CityViewModelFactory(application)
+        cityViewModel = ViewModelProvider(this, cityViewModelFactory).get(
+            CityViewModel::class.java
+        )
 
         if (sharedPreferences.getString(KEY_PREFERENCE_CITY_LIST, null) != null){
             getCityList()
@@ -99,12 +109,14 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
             val stringRequest = StringRequest(
                 Request.Method.GET, url,
                 { response ->
+
                     item = WeatherAdapter.setCityFromJsonString(response, item)
                     cityList[i] = item
+                    Log.d("MainActivityDEBUG", "volley ok $i $item")
                 },
                 {
                     Toast.makeText(this, "Network didnt work $i", Toast.LENGTH_SHORT).show()
-                    Log.d("MainActivityDEBUG", "volley $i $item")})
+                    Log.d("MainActivityDEBUG", "volley didnt work $i $item")})
             requestQueue.add(stringRequest)
         }
     }
