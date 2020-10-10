@@ -26,7 +26,6 @@ import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
 class CityFragment : DialogFragment() {
 
     private var columnCount = 1
-    private lateinit var cityList: MutableList<City>//TODO: Delete this and use shared prefences
     private lateinit var cityViewModel: CityViewModel
     private lateinit var cityViewModelFactory: CityViewModelFactory
     private lateinit var recyclerViewAdapter : MyCityRecyclerViewAdapter
@@ -40,7 +39,6 @@ class CityFragment : DialogFragment() {
 
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            cityList = it.getSerializable(ARG_CITY_LIST) as MutableList<City> //TODO: Delete this
         }
     }
 
@@ -86,15 +84,13 @@ class CityFragment : DialogFragment() {
 
         // TODO: Customize parameter argument names
         const val ARG_COLUMN_COUNT = "column-count"
-        const val ARG_CITY_LIST = "city-list"
 
         // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(columnCount: Int, cityList: ArrayList<City>) =
+        fun newInstance(columnCount: Int) =
             CityFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_COLUMN_COUNT, columnCount)
-                    putSerializable(ARG_CITY_LIST, cityList) //TODO: Delete this and use shared prefences
                 }
             }
     }

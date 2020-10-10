@@ -43,7 +43,6 @@ class NewCityFragment : DialogFragment() {
             CityViewModel::class.java
         )
         arguments?.let {
-            cityList = it.getSerializable(CityFragment.ARG_CITY_LIST) as MutableList<City>
         }
     }
 
@@ -99,7 +98,6 @@ class NewCityFragment : DialogFragment() {
         fun newInstance(cityList: ArrayList<City>) =
             NewCityFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(CityFragment.ARG_CITY_LIST, cityList)
                 }
             }
     }
