@@ -5,3 +5,5 @@ const val KEY_PREFERENCE_CITY_LIST = "key_preference_city_list"
 
 const val DATABASE_NAME = "app-db"
 const val DATABASE_TABLE_CITY = "city_table"
+
+const val MY_LOCATION = "My location"

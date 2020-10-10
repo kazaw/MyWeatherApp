@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
@@ -23,6 +24,8 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.gson.Gson
 import com.kacper.myweatherapp.api.OpenWeatherMapAPI
 import com.kacper.myweatherapp.data.City
@@ -47,10 +50,9 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
     private lateinit var cityList: MutableList<City>
     private lateinit var activeCity: City
     private lateinit var sharedPreferences: SharedPreferences
-    private lateinit var gson: Gson
-    private lateinit var sharedPreferencesEditor : SharedPreferences.Editor
     private lateinit var cityViewModel: CityViewModel
     private lateinit var cityViewModelFactory: CityViewModelFactory
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +81,7 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
             Log.d("MainActivityDEBUG", "cityViewModel-1")
             this.cityList = it as MutableList<City>
             if (cityList.size == 0){
-                activeCity = City("My location", 15.3, 15.3)//TODO: get device location
+                activeCity = City(MY_LOCATION, 15.3, 15.3)//TODO: get device location
                 cityViewModel.insert(activeCity)
                 Log.d("MainActivityDEBUG", "cityViewModel-2")
             }
@@ -88,9 +90,8 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
             Log.d("MainActivityDEBUG", "$activeCity ${activeCity.uid}")
             updateAll(cityList)
         })
-
-
-
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        getMyLocation()
     }
     private fun <T> LiveData<T>.observeOnce(lifecycleOwner: LifecycleOwner, observer: Observer<T>) {
         observe(lifecycleOwner, object : Observer<T> {
@@ -168,9 +169,25 @@ class MainActivity : AppCompatActivity(), Toolbar.OnMenuItemClickListener, Share
             this,
             Manifest.permission.ACCESS_FINE_LOCATION
         )
-
         if (permission != PackageManager.PERMISSION_GRANTED) {
             makePermissionsRequest()
+        }
+    }
+
+    private fun getMyLocation() {//TODO: Check if working properly
+        try {
+            fusedLocationClient.lastLocation.addOnSuccessListener { location : Location? ->
+                if (location != null) {
+                    if(activeCity.name == MY_LOCATION){
+                        Log.d("MainActivityDEBUG", "location changed")
+                        activeCity.lat = location.latitude
+                        activeCity.lon = location.longitude
+                        getWeatherData(activeCity, true)
+                    }
+                }
+            }
+        }catch (e : SecurityException){
+            e.printStackTrace()
         }
     }
 
