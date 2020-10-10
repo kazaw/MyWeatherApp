@@ -1,7 +1,6 @@
 package com.kacper.myweatherapp.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -10,15 +9,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.appcompat.widget.ActivityChooserView
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.events.ClickCityEvent
 import com.kacper.myweatherapp.viewmodel.CityViewModel
 import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
+import org.greenrobot.eventbus.EventBus
 
 /**
  * A fragment representing a list of Items.
@@ -56,7 +54,7 @@ class CityFragment : DialogFragment() {
                     else -> GridLayoutManager(context, columnCount)
                 }
                 recyclerViewAdapter = MyCityRecyclerViewAdapter(activity, mutableListOf()) {
-                    itemClick()
+                    itemClick(it)
                 }
                 adapter = recyclerViewAdapter
                 cityViewModel.getAll().observe(viewLifecycleOwner, {data ->
@@ -76,8 +74,10 @@ class CityFragment : DialogFragment() {
         dialog?.window?.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
     }
 
-    private fun itemClick(){
+    private fun itemClick(city : City){
         Toast.makeText(context, "Item clicked", Toast.LENGTH_SHORT).show()
+        EventBus.getDefault().post(ClickCityEvent(city))
+        dismiss()
     }
 
     companion object {

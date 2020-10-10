@@ -15,9 +15,11 @@ import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.events.InsertCityEvent
 import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_CITY_LIST
 import com.kacper.myweatherapp.viewmodel.CityViewModel
 import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
+import org.greenrobot.eventbus.EventBus
 import java.text.DecimalFormat
 
 // TODO: Rename parameter arguments, choose names that match
@@ -89,7 +91,8 @@ class NewCityFragment : DialogFragment() {
         val jsonString = gson.toJson(cityList)
         sharedPreferencesEditor.putString(KEY_PREFERENCE_CITY_LIST, jsonString)
         sharedPreferencesEditor.apply()*/
-        cityViewModel.insert(city)
+        //cityViewModel.insert(city)
+        EventBus.getDefault().post(InsertCityEvent(city))
         dismiss()// TODO: USE Event to bus to notify recyclerview to reload
     }
 
