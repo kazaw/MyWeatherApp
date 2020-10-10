@@ -13,8 +13,10 @@ import androidx.fragment.app.FragmentActivity
 import androidx.preference.PreferenceManager
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.events.DeleteCityEvent
 import com.kacper.myweatherapp.utilities.KEY_PREFERENCE_TEMPERATURE
 import com.kacper.myweatherapp.utilities.getTemperatureString
+import org.greenrobot.eventbus.EventBus
 
 class MyCityRecyclerViewAdapter(
     private val activity: FragmentActivity?,
@@ -77,8 +79,8 @@ class MyCityRecyclerViewAdapter(
             holder.itemView.setOnClickListener { listener(item) }
             holder.imageButtonView?.setOnClickListener {
                 Toast.makeText(activity, "delete button", Toast.LENGTH_SHORT).show()
-                //TODO: use if possible event bus to delete item and refresh recyclerview
-                //TODO: Why i am not using live data?
+                EventBus.getDefault().post(DeleteCityEvent(item))
+                notifyDataSetChanged()
             }
         }
     }

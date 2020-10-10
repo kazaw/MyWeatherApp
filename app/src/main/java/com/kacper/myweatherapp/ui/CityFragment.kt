@@ -1,7 +1,6 @@
 package com.kacper.myweatherapp.ui
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,8 +13,10 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
 import com.kacper.myweatherapp.R
 import com.kacper.myweatherapp.data.City
+import com.kacper.myweatherapp.events.ClickCityEvent
 import com.kacper.myweatherapp.viewmodel.CityViewModel
 import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
+import org.greenrobot.eventbus.EventBus
 
 /**
  * A fragment representing a list of Items.
@@ -23,22 +24,19 @@ import com.kacper.myweatherapp.viewmodel.CityViewModelFactory
 class CityFragment : DialogFragment() {
 
     private var columnCount = 1
-    private lateinit var cityList: MutableList<City>//TODO: Delete this and use shared prefences
     private lateinit var cityViewModel: CityViewModel
     private lateinit var cityViewModelFactory: CityViewModelFactory
     private lateinit var recyclerViewAdapter : MyCityRecyclerViewAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        cityViewModelFactory = CityViewModelFactory(activity!!.application)
-        cityViewModel = ViewModelProvider(this, cityViewModelFactory).get(
+        cityViewModelFactory = CityViewModelFactory(requireActivity().application)
+        cityViewModel = ViewModelProvider(requireActivity(), cityViewModelFactory).get(
             CityViewModel::class.java
         )
 
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
-            cityList = it.getSerializable(ARG_CITY_LIST) as MutableList<City> //TODO: Delete this and use shared prefences
         }
     }
 
@@ -56,10 +54,10 @@ class CityFragment : DialogFragment() {
                     else -> GridLayoutManager(context, columnCount)
                 }
                 recyclerViewAdapter = MyCityRecyclerViewAdapter(activity, mutableListOf()) {
-                    itemClick()
+                    itemClick(it)
                 }
                 adapter = recyclerViewAdapter
-                cityViewModel.getAll().observe(this@CityFragment, {data ->
+                cityViewModel.getAll().observe(viewLifecycleOwner, {data ->
                     recyclerViewAdapter.swapData(data)
                 })
             }
@@ -67,28 +65,32 @@ class CityFragment : DialogFragment() {
         return view
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+    }
+
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
     }
 
-    private fun itemClick(){
+    private fun itemClick(city : City){
         Toast.makeText(context, "Item clicked", Toast.LENGTH_SHORT).show()
+        EventBus.getDefault().post(ClickCityEvent(city))
+        dismiss()
     }
 
     companion object {
 
         // TODO: Customize parameter argument names
         const val ARG_COLUMN_COUNT = "column-count"
-        const val ARG_CITY_LIST = "city-list"
 
         // TODO: Customize parameter initialization
         @JvmStatic
-        fun newInstance(columnCount: Int, cityList: ArrayList<City>) =
+        fun newInstance(columnCount: Int) =
             CityFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_COLUMN_COUNT, columnCount)
-                    putSerializable(ARG_CITY_LIST, cityList) //TODO: Delete this and use shared prefences
                 }
             }
     }
